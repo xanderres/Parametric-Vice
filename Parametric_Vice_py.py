@@ -76,17 +76,13 @@ vise_folder = f"{vise_name}_step"
 os.makedirs(vise_folder, exist_ok=True)
 
 for opening in range(min_open, max_open + 1, step):
-
     model = create_vice(opening=opening)
-
     filename = f"{vise_folder}/{vise_name}_{opening}mm.step"
-
     cq.exporters.export(
         model,
         filename,
         exportType="STEP"
     )
-
     print(f"\033[92m[OK]\033[0m {filename}")
 
 print("Finished!")

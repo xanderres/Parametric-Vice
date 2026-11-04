@@ -39,3 +39,13 @@ Edit the values near the top of `Parametric_Vice_py.py`:
 | `step` | `1` | Increment in mm between exported openings |
 
 Dimensions are in millimeters. The script exports one STEP file for each opening in the selected range to a folder named `<vise_name>_step`. The export range overrides `vise_opening`.
+
+## Run the Script
+
+After editing and saving `Parametric_Vice_py.py`, open a terminal in the project folder and run:
+
+```bash
+python Parametric_Vice_py.py
+```
+
+The first run can take a very long time while CadQuery starts up and generates the models. Please be patient and allow it to finish. The exported STEP files will be saved in the `<vise_name>_step` folder.
