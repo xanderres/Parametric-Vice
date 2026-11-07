@@ -4,10 +4,10 @@ As someone who works with CNC machine programming, I have repeatedly encountered
 
 To address this issue, I developed a simple CadQuery-based Python script that generates vise models for a selected range of jaw openings.
 
-The idea is simple:
+The settings can be entered in a Tkinter window:
 
-1. Set the vise dimensions and jaw-opening range in `Parametric_Vice_py.py`.
-2. Run the script to export a STEP file for each opening from `min_open` to `max_open`, increasing by `step`.
+1. Run the script and enter the vise dimensions and jaw-opening range in the window.
+2. Select **Create STEP files** to export a STEP file for each opening from `min_open` to `max_open`, increasing by `step`.
 3. Import the STEP file for the desired jaw opening into your CAD or CAM software.
 
 This makes it easier to simulate different workpiece setups without having to manually adjust the vise for every configuration.
@@ -22,7 +22,7 @@ pip install cadquery
 
 ## Script settings
 
-Edit the values near the top of `Parametric_Vice_py.py`:
+The window displays all settings below. Defaults are still defined near the top of `Parametric_Vice_py.py`:
 
 | Setting | Default | Description |
 |---|---:|---|
@@ -33,7 +33,7 @@ Edit the values near the top of `Parametric_Vice_py.py`:
 | `vise_jaw_height` | `10` | Jaw height |
 | `vise_fixed_jaw_length` | `10` | Fixed jaw length |
 | `vise_sliding_jaw_length` | `15` | Sliding jaw length |
-| `vise_opening` | `1` | Default opening for `create_vice()` (coming soon) |
+| `vise_opening` | `1` | Default opening for `create_vice()`; the export range overrides it |
 | `min_open` | `1` | First opening to export |
 | `max_open` | `20` | Last opening to export (inclusive) |
 | `step` | `1` | Increment in mm between exported openings |
@@ -42,7 +42,7 @@ Dimensions are in millimeters. The script exports one STEP file for each opening
 
 ## Run the Script
 
-After editing and saving `Parametric_Vice_py.py`, open a terminal in the project folder and run:
+Open a terminal in the project folder and run:
 
 ```bash
 python Parametric_Vice_py.py
