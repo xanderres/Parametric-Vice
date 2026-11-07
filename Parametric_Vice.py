@@ -79,7 +79,7 @@ def create_vice(
     return base_fixed_jaw.union(sliding_jaw)
 
 
-def validate_settings(settings):
+def validate_settings(settings, validate_range=True):
     name = settings["vise_name"]
     if (
         not name.strip()
@@ -97,23 +97,37 @@ def validate_settings(settings):
         "vise_fixed_jaw_length",
         "vise_sliding_jaw_length",
         "vise_opening",
-        "min_open",
-        "max_open",
-        "step",
     )
+    if validate_range:
+        positive_values += ("min_open", "max_open", "step")
     for key in positive_values:
         if settings[key] <= 0:
             raise ValueError(f"{key} must be greater than 0.")
 
     if settings["vise_jaw_height"] >= settings["vise_height"]:
         raise ValueError("Jaw height must be less than the overall vise height.")
-    if settings["min_open"] > settings["max_open"]:
+    if validate_range and settings["min_open"] > settings["max_open"]:
         raise ValueError("Minimum opening cannot be greater than maximum opening.")
 
 
-def generate_models(settings, progress_callback=None):
+def export_model(settings, opening, output_folder):
     import cadquery as cq
 
+    model = create_vice(
+        height=settings["vise_height"],
+        length=settings["vise_length"],
+        width=settings["vise_width"],
+        jaw_height=settings["vise_jaw_height"],
+        fixed_jaw_length=settings["vise_fixed_jaw_length"],
+        sliding_jaw_length=settings["vise_sliding_jaw_length"],
+        opening=opening,
+    )
+    filename = output_folder / f'{settings["vise_name"]}_{opening}mm.step'
+    cq.exporters.export(model, str(filename), exportType="STEP")
+    return filename
+
+
+def generate_models(settings, progress_callback=None):
     validate_settings(settings)
     output_folder = Path(f'{settings["vise_name"]}_step')
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -124,21 +138,21 @@ def generate_models(settings, progress_callback=None):
         settings["step"],
     )
     for opening in openings:
-        model = create_vice(
-            height=settings["vise_height"],
-            length=settings["vise_length"],
-            width=settings["vise_width"],
-            jaw_height=settings["vise_jaw_height"],
-            fixed_jaw_length=settings["vise_fixed_jaw_length"],
-            sliding_jaw_length=settings["vise_sliding_jaw_length"],
-            opening=opening,
-        )
-        filename = output_folder / f'{settings["vise_name"]}_{opening}mm.step'
-        cq.exporters.export(model, str(filename), exportType="STEP")
+        filename = export_model(settings, opening, output_folder)
         if progress_callback:
             progress_callback(f"Exported: {filename}")
 
     return output_folder
+
+
+def generate_single_model(settings, progress_callback=None):
+    validate_settings(settings, validate_range=False)
+    output_folder = Path(f'{settings["vise_name"]}_step')
+    output_folder.mkdir(parents=True, exist_ok=True)
+    filename = export_model(settings, settings["vise_opening"], output_folder)
+    if progress_callback:
+        progress_callback(f"Exported: {filename}")
+    return filename
 
 
 PARAMETER_FIELDS = (
@@ -195,15 +209,17 @@ def launch_gui():
 
     messages = queue.Queue()
 
-    def collect_settings():
+    def collect_settings(validate_range=True):
         settings = {}
         for _label, key, value_type in PARAMETER_FIELDS:
+            if not validate_range and key in ("min_open", "max_open", "step"):
+                continue
             raw_value = variables[key].get()
             try:
                 settings[key] = value_type(raw_value) if value_type is int else raw_value
             except ValueError as error:
                 raise ValueError(f"Invalid value for {key}: {raw_value}") from error
-        validate_settings(settings)
+        validate_settings(settings, validate_range=validate_range)
         return settings
 
     def poll_messages():
@@ -213,47 +229,72 @@ def launch_gui():
                 if kind == "progress":
                     status.set(value)
                 elif kind == "done":
-                    status.set(f"Done. STEP files saved to: {value}")
-                    generate_button.configure(state="normal")
+                    status.set(f"Done. STEP file(s) saved to: {value}")
+                    set_buttons_enabled(True)
                 elif kind == "error":
                     status.set("Export failed.")
-                    generate_button.configure(state="normal")
+                    set_buttons_enabled(True)
                     messagebox.showerror("Export failed", str(value), parent=root)
         except queue.Empty:
             pass
-        if generate_button.instate(["disabled"]):
+        if not generate_button.instate(["disabled"]):
+            return
+        if not single_generate_button.instate(["disabled"]):
             root.after(100, poll_messages)
 
-    def start_generation():
+    def set_buttons_enabled(enabled):
+        state = "normal" if enabled else "disabled"
+        generate_button.configure(state=state)
+        single_generate_button.configure(state=state)
+
+    def start_generation(single=False):
         try:
-            settings = collect_settings()
+            settings = collect_settings(validate_range=not single)
         except ValueError as error:
             messagebox.showerror("Invalid settings", str(error), parent=root)
             return
 
-        generate_button.configure(state="disabled")
+        set_buttons_enabled(False)
         status.set("Preparing export...")
 
         def worker():
             try:
-                output_folder = generate_models(
-                    settings,
-                    lambda message: messages.put(("progress", message)),
-                )
-                messages.put(("done", output_folder))
+                progress = lambda message: messages.put(("progress", message))
+                if single:
+                    output_path = generate_single_model(settings, progress)
+                else:
+                    output_path = generate_models(settings, progress)
+                messages.put(("done", output_path))
             except Exception as error:
                 messages.put(("error", error))
 
         threading.Thread(target=worker, daemon=True).start()
         root.after(100, poll_messages)
 
-    generate_button = ttk.Button(root, text="Create STEP files", command=start_generation)
+    generate_button = ttk.Button(
+        root,
+        text="Create STEP files for opening range",
+        command=lambda: start_generation(),
+    )
     generate_button.grid(
         row=len(PARAMETER_FIELDS) + 1,
         column=0,
         columnspan=2,
         padx=12,
         pady=(4, 12),
+        sticky="ew",
+    )
+    single_generate_button = ttk.Button(
+        root,
+        text="Create single STEP file (default opening)",
+        command=lambda: start_generation(single=True),
+    )
+    single_generate_button.grid(
+        row=len(PARAMETER_FIELDS) + 2,
+        column=0,
+        columnspan=2,
+        padx=12,
+        pady=(0, 12),
         sticky="ew",
     )
 

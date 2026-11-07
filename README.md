@@ -7,7 +7,7 @@ To address this issue, I developed a simple CadQuery-based Python script that ge
 The settings can be entered in a Tkinter window:
 
 1. Run the script and enter the vise dimensions and jaw-opening range in the window.
-2. Select **Create STEP files** to export a STEP file for each opening from `min_open` to `max_open`, increasing by `step`.
+2. Select **Create STEP files for opening range** to export a STEP file for each opening from `min_open` to `max_open`, increasing by `step`, or **Create single STEP file (default opening)** to export only the opening set in `vise_opening`.
 3. Import the STEP file for the desired jaw opening into your CAD or CAM software.
 
 This makes it easier to simulate different workpiece setups without having to manually adjust the vise for every configuration.
@@ -22,7 +22,7 @@ pip install cadquery
 
 ## Script settings
 
-The window displays all settings below. Defaults are still defined near the top of `Parametric_Vice_py.py`:
+The window displays all settings below. Defaults are still defined near the top of `Parametric_Vice.py`:
 
 | Setting | Default | Description |
 |---|---:|---|
@@ -38,14 +38,14 @@ The window displays all settings below. Defaults are still defined near the top 
 | `max_open` | `20` | Last opening to export (inclusive) |
 | `step` | `1` | Increment in mm between exported openings |
 
-Dimensions are in millimeters. The script exports one STEP file for each opening in the selected range to a folder named `<vise_name>_step`. The export range overrides `vise_opening`.
+Dimensions are in millimeters. Both buttons save STEP files to a folder named `<vise_name>_step`, using filenames in the format `<vise_name>_<opening>mm.step`.
 
 ## Run the Script
 
 Open a terminal in the project folder and run:
 
 ```bash
-python Parametric_Vice_py.py
+python Parametric_Vice.py
 ```
 
 The first run can take a very long time while CadQuery starts up and generates the models. Please be patient and allow it to finish. The exported STEP files will be saved in the `<vise_name>_step` folder.
