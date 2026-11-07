@@ -14,11 +14,13 @@ This makes it easier to simulate different workpiece setups without having to ma
 
 ## Installation
 
-Install Python 3.10 and CadQuery. CadQuery may not yet support the latest Python versions, so an older version may be required.
+Install Python 3.10 and use `requirements.txt` to install the Python dependencies:
 
 ```bash
-pip install cadquery
+pip install -r requirements.txt
 ```
+
+CadQuery may not yet support the latest Python versions, so an older version may be required. Tkinter, used for the settings window, is included with most standard Python installations.
 
 ## Script settings
 

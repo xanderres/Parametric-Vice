@@ -291,7 +291,7 @@ def launch_gui():
     )
     single_generate_button = ttk.Button(
         root,
-        text="Create single STEP file (default opening)",
+        text="Create single STEP file (Default opening)",
         command=lambda: start_generation(single=True),
     )
     single_generate_button.grid(
