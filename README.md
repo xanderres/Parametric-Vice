@@ -12,6 +12,7 @@ The settings can be entered in a Tkinter window:
 
 This makes it easier to simulate different workpiece setups without having to manually adjust the vise for every configuration.
 
+
 ## Installation
 
 Install Python 3.10 and use `requirements.txt` to install the Python dependencies:
@@ -41,6 +42,8 @@ The window displays all settings below. Defaults are still defined near the top 
 | `step` | `1` | Increment in mm between exported openings |
 
 Dimensions are in millimeters. Both buttons save STEP files to a folder named `<vise_name>_step`, using filenames in the format `<vise_name>_<opening>mm.step`.
+
+![Parametric Vice settings window](./Pic.jpg)
 
 ## Run the Script
 
