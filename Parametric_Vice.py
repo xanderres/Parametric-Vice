@@ -223,23 +223,28 @@ def launch_gui():
         return settings
 
     def poll_messages():
-        try:
-            while True:
+        latest_progress = None
+        for _ in range(100):
+            try:
                 kind, value = messages.get_nowait()
-                if kind == "progress":
-                    status.set(value)
-                elif kind == "done":
-                    status.set(f"Done. STEP file(s) saved to: {value}")
-                    set_buttons_enabled(True)
-                elif kind == "error":
-                    status.set("Export failed.")
-                    set_buttons_enabled(True)
-                    messagebox.showerror("Export failed", str(value), parent=root)
-        except queue.Empty:
-            pass
-        if not generate_button.instate(["disabled"]):
-            return
-        if not single_generate_button.instate(["disabled"]):
+            except queue.Empty:
+                break
+
+            if kind == "progress":
+                latest_progress = value
+            elif kind == "done":
+                status.set(f"Done. STEP file(s) saved to: {value}")
+                set_buttons_enabled(True)
+                return
+            elif kind == "error":
+                status.set("Export failed.")
+                set_buttons_enabled(True)
+                messagebox.showerror("Export failed", str(value), parent=root)
+                return
+
+        if latest_progress is not None:
+            status.set(latest_progress)
+        if generate_button.instate(["disabled"]):
             root.after(100, poll_messages)
 
     def set_buttons_enabled(enabled):
