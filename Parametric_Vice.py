@@ -5,6 +5,8 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox, ttk
 
+from PIL import Image, ImageTk
+
 # Vise Name
 vise_name = "My_Vise"
 
@@ -175,6 +177,21 @@ def launch_gui():
     root.title("Parametric Vice")
     root.resizable(False, False)
     root.columnconfigure(1, weight=1)
+
+    image_path = Path(__file__).resolve().with_name("Pic.jpg")
+    with Image.open(image_path) as image:
+        image.thumbnail((440, 440), Image.Resampling.LANCZOS)
+        image_preview = ImageTk.PhotoImage(image)
+    image_label = ttk.Label(root, image=image_preview)
+    image_label.image = image_preview
+    image_label.grid(
+        row=0,
+        column=2,
+        rowspan=len(PARAMETER_FIELDS) + 3,
+        padx=(0, 12),
+        pady=8,
+        sticky="n",
+    )
 
     variables = {}
     for row, (label, key, _value_type) in enumerate(PARAMETER_FIELDS):

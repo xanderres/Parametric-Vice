@@ -4,7 +4,7 @@ As someone who works with CNC machine programming, I have repeatedly encountered
 
 To address this issue, I developed a simple CadQuery-based Python script that generates vise models for a selected range of jaw openings.
 
-The settings can be entered in a Tkinter window:
+The settings can be entered in a Tkinter window, with the vise dimensions illustration displayed beside the controls:
 
 1. Run the script and enter the vise dimensions and jaw-opening range in the window.
 2. Select **Create STEP files for opening range** to export a STEP file for each opening from `min_open` to `max_open`, increasing by `step`, or **Create single STEP file (default opening)** to export only the opening set in `vise_opening`.
