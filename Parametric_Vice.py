@@ -1,9 +1,51 @@
+import importlib.util
 import queue
 import re
+import subprocess
+import sys
 import threading
 import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox, ttk
+
+
+def ensure_dependencies():
+    required_modules = ("PIL", "cadquery")
+    missing_modules = [
+        module for module in required_modules
+        if importlib.util.find_spec(module) is None
+    ]
+    if not missing_modules:
+        return
+
+    requirements_path = Path(__file__).resolve().with_name("requirements.txt")
+    if not requirements_path.is_file():
+        raise FileNotFoundError(f"Dependency file not found: {requirements_path}")
+
+    print(f"Installing missing Python modules: {', '.join(missing_modules)}")
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "-r",
+            str(requirements_path),
+        ]
+    )
+
+    still_missing = [
+        module for module in required_modules
+        if importlib.util.find_spec(module) is None
+    ]
+    if still_missing:
+        raise ModuleNotFoundError(
+            f"Required Python modules are still unavailable after installation: "
+            f"{', '.join(still_missing)}"
+        )
+
+
+ensure_dependencies()
 
 from PIL import Image, ImageTk
 

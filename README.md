@@ -15,7 +15,7 @@ This makes it easier to simulate different workpiece setups without having to ma
 
 ## Installation
 
-Install Python 3.10 and use `requirements.txt` to install the Python dependencies:
+Install Python 3.10 and run the script. It automatically installs the required packages from `requirements.txt` if they are missing; an internet connection and permission to install packages are required. You can also install them manually:
 
 ```bash
 pip install -r requirements.txt
