@@ -229,7 +229,7 @@ def launch_gui():
         )
     else:
         with Image.open(image_path) as image:
-            image.thumbnail((440, 440), Image.Resampling.LANCZOS)
+            image.thumbnail((600, 600), Image.Resampling.LANCZOS)
             image_preview = ImageTk.PhotoImage(image)
         image_label = ttk.Label(root, image=image_preview)
         image_label.image = image_preview
