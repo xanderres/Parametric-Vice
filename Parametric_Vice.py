@@ -179,19 +179,26 @@ def launch_gui():
     root.columnconfigure(1, weight=1)
 
     image_path = Path(__file__).resolve().with_name("Pic.jpg")
-    with Image.open(image_path) as image:
-        image.thumbnail((440, 440), Image.Resampling.LANCZOS)
-        image_preview = ImageTk.PhotoImage(image)
-    image_label = ttk.Label(root, image=image_preview)
-    image_label.image = image_preview
-    image_label.grid(
-        row=0,
-        column=2,
-        rowspan=len(PARAMETER_FIELDS) + 3,
-        padx=(0, 12),
-        pady=8,
-        sticky="n",
-    )
+    if not image_path.is_file():
+        messagebox.showerror(
+            "Image not found",
+            f"The image file '{image_path.name}' was not found. The GUI will start without it.",
+            parent=root,
+        )
+    else:
+        with Image.open(image_path) as image:
+            image.thumbnail((440, 440), Image.Resampling.LANCZOS)
+            image_preview = ImageTk.PhotoImage(image)
+        image_label = ttk.Label(root, image=image_preview)
+        image_label.image = image_preview
+        image_label.grid(
+            row=0,
+            column=2,
+            rowspan=len(PARAMETER_FIELDS) + 3,
+            padx=(0, 12),
+            pady=8,
+            sticky="n",
+        )
 
     variables = {}
     for row, (label, key, _value_type) in enumerate(PARAMETER_FIELDS):
