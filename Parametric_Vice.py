@@ -201,9 +201,14 @@ def launch_gui():
         )
 
     variables = {}
+    default_opening_row = next(
+        row for row, (_label, key, _value_type) in enumerate(PARAMETER_FIELDS)
+        if key == "vise_opening"
+    )
     for row, (label, key, _value_type) in enumerate(PARAMETER_FIELDS):
+        field_row = row if row <= default_opening_row else row + 1
         ttk.Label(root, text=label).grid(
-            row=row,
+            row=field_row,
             column=0,
             padx=(12, 8),
             pady=5,
@@ -212,7 +217,7 @@ def launch_gui():
         variable = tk.StringVar(value=str(globals()[key]))
         variables[key] = variable
         ttk.Entry(root, textvariable=variable, width=24).grid(
-            row=row,
+            row=field_row,
             column=1,
             padx=(0, 12),
             pady=5,
@@ -220,10 +225,10 @@ def launch_gui():
         )
 
     status = tk.StringVar(
-        value="The selected opening range will be exported. The default opening is used by create_vice()."
+        value="The selected opening range will be exported to STEP files in a folder named after the vise."
     )
     ttk.Label(root, textvariable=status, wraplength=400).grid(
-        row=len(PARAMETER_FIELDS),
+        row=len(PARAMETER_FIELDS) + 1,
         column=0,
         columnspan=2,
         padx=12,
@@ -306,7 +311,7 @@ def launch_gui():
         command=lambda: start_generation(),
     )
     generate_button.grid(
-        row=len(PARAMETER_FIELDS) + 1,
+        row=len(PARAMETER_FIELDS) + 2,
         column=0,
         columnspan=2,
         padx=12,
@@ -319,11 +324,11 @@ def launch_gui():
         command=lambda: start_generation(single=True),
     )
     single_generate_button.grid(
-        row=len(PARAMETER_FIELDS) + 2,
+        row=default_opening_row + 1,
         column=0,
         columnspan=2,
         padx=12,
-        pady=(0, 12),
+        pady=(0, 5),
         sticky="ew",
     )
 
